@@ -1,5 +1,20 @@
 extends layout
 
+block scripts
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/utils/UID.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/geom/Matrix2D.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/events/EventDispatcher.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/DisplayObject.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Container.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Stage.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/events/MouseEvent.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Shape.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Graphics.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/utils/Ticker.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Text.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/ui/Touch.js')
+	script(type='text/javascript', src='/javascripts/EaselJS-release_v0.6.0/src/easeljs/display/Bitmap.js')
+
 block content
-  h1= title
-  div#board
+	h1= title
+	div#board
