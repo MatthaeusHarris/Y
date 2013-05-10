@@ -40,7 +40,7 @@
 
 	var boardImage, blackPieceImage, whitePieceImage;
 	var boardObject, blackPieceObject, whitePieceObject;
-	var blackPieces = [], whitePieces = [];
+	var pieces = [];
 
 	function init() {
 		canvas = document.getElementById("boardCanvas");
@@ -49,7 +49,7 @@
 
 		stage = new createjs.Stage(canvas);
 		createjs.Touch.enable(stage);
-		stage.enableMouseOver(10);
+		stage.enableMouseOver(50);
 		stage.mouseMoveOutside = true;
 
 		container = new createjs.Container();
@@ -91,17 +91,32 @@
 					var blackImage = results.blackpiece;
 					var whiteImage = results.whitepiece;
 
-					for (var i = 0; i < 47; i++) {
-						var black = new createjs.Bitmap(blackImage);
-						black.x = blackField.x + Math.floor(Math.random() * (blackField.width - blackField.pieceWidth));
-						black.y = blackField.y + Math.floor(Math.random() * (blackField.height - blackField.pieceHeight));
-						black.name = "black_" + i;
-						blackPieces.push(black);
+					var images = [blackImage, whiteImage];
+					var fields = [blackField, whiteField];
+					var colors = ["black", "white"];
 
-						container.addChild(black);
+					for (var i = 0; i < 94; i++) {
+						var imageObject = images[i%2];
+						var field = fields[i%2];
+
+						var piece = new createjs.Bitmap(imageObject);
+						
+						piece.x = field.x + Math.floor(Math.random() * (field.width - field.pieceWidth));
+						piece.y = field.y + Math.floor(Math.random() * (field.height - field.pieceHeight));
+						piece.cursor = 'move';
+						piece.name = colors[i%2] + '_' + i;
+						piece.color = colors[i%2];
+						piece.colorIndex = i%2;
+						pieces.push(piece);
+
+						container.addChild(piece);
 
 						(function(target) {
-							black.onPress = function(evt) {
+							piece.onPress = function(evt) {
+								var previewPiece = new createjs.Bitmap(images[target.colorIndex]);
+								previewPiece.set({alpha: 0});
+								container.addChild(previewPiece);
+
 								container.addChild(target);
 								var offset = {x:target.x-evt.stageX, y:target.y-evt.stageY};
 
@@ -109,10 +124,18 @@
 									target.x = ev.stageX + offset.x;
 									target.y = ev.stageY + offset.y;
 
+									var pos = findNearestWithMinDistance({x: target.x, y: target.y}, positions, 30);
+									if (pos) {
+										previewPiece.x = pos.x;
+										previewPiece.y = pos.y;
+										previewPiece.set({alpha: .5});
+									}
+
 									update = true;
 								}
 
 								evt.onMouseUp = function(ev) {
+									document.body.style.cursor = 'default';
 									console.log(ev);
 									var pos = findNearestWithMinDistance({x: target.x, y: target.y}, positions, 30);
 									if (pos) {
@@ -122,44 +145,10 @@
 									} else {
 										console.log("Could not snap.");
 									}
+									container.removeChild(previewPiece);
 								}
 							}
-						})(black);
-
-						var white = new createjs.Bitmap(whiteImage);
-						white.x = whiteField.x + Math.floor(Math.random() * (whiteField.width - whiteField.pieceWidth));
-						white.y = whiteField.y + Math.floor(Math.random() * (whiteField.height - whiteField.pieceHeight));
-						white.name = "white_" + i;
-
-						container.addChild(white);
-
-						(function(target) {
-							white.onPress = function(evt) {
-								container.addChild(target);
-								var offset = {x:target.x-evt.stageX, y:target.y-evt.stageY};
-
-								evt.onMouseMove = function(ev) {
-									target.x = ev.stageX + offset.x;
-									target.y = ev.stageY + offset.y;
-
-									update = true;
-								}
-
-								evt.onMouseUp = function(ev) {
-									console.log(ev);
-									var pos = findNearestWithMinDistance({x: ev.stageX, y: ev.stageY}, positions, 30);
-									if (pos) {
-										target.x = pos.x;
-										target.y = pos.y;
-										update = true;
-									} else {
-										console.log("Could not snap.");
-									}
-								}
-							}
-						})(white);
-
-						whitePieces.push(white);
+						})(piece);
 					}
 
 					document.getElementById("loader").className = "";
