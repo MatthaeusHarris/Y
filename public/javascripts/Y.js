@@ -41,8 +41,19 @@
 	var boardImage, blackPieceImage, whitePieceImage;
 	var boardObject, blackPieceObject, whitePieceObject;
 	var pieces = [];
+	var socket;
 
 	function init() {
+
+		socket = io.connect();
+		socket.on('connect', function() {
+			socket.emit('game',{gameID: getQueryVariable('game')});
+		});
+
+		socket.on('gamestart', function(data) {
+			console.log(data);
+		});
+
 		canvas = document.getElementById("boardCanvas");
 
 		document.getElementById("loader").className = "loader";
@@ -134,6 +145,12 @@
 									}
 
 									update = true;
+
+									socket.emit('move', {
+										pieceName: target.name,
+										x: target.x,
+										y: target.y
+									});
 								}
 
 								evt.onMouseUp = function(ev) {
@@ -144,6 +161,12 @@
 										target.x = pos.x;
 										target.y = pos.y;
 										update = true;
+
+										socket.emit('move', {
+											pieceName: target.name,
+											x: target.x,
+											y: target.y
+										});
 									} else {
 										console.log("Could not snap.");
 									}
@@ -156,12 +179,32 @@
 					document.getElementById("loader").className = "";
 					createjs.Ticker.addEventListener("tick", tick);
 
+					socket.on('move', function(data) {
+						console.log(data);
+						var target;
+						for (var t in container.children) {
+							if (container.children[t].name == data.pieceName) {
+								target = container.children[t];
+								break;
+							}
+						}
+						if (target) {
+							target.x = data.x;
+							target.y = data.y;
+							update = true;
+						}
+					});
+
+					
+
 				} else {
 					console.log("Error: ");
 					console.log(err);
 				}
 			}
 		);
+
+
 	}
 
 	function handleBoardImageLoad(event) {
@@ -213,4 +256,16 @@ function findNearestWithMinDistance(coordinates, pointList, minDistance) {
 	} else {
 		return null;
 	}
+}
+
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
 }
