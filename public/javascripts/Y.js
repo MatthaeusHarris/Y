@@ -129,6 +129,8 @@
 										previewPiece.x = pos.x;
 										previewPiece.y = pos.y;
 										previewPiece.set({alpha: .5});
+									} else {
+										previewPiece.set({alpha: 0});
 									}
 
 									update = true;
