@@ -21,10 +21,12 @@ var express = require('express')
 
 var app = express();
 
-var games = {};
-
 var server = http.createServer(app);
 server.listen(process.env.PORT || 3000);
+
+var io = global.io = require('socket.io').listen(server);
+
+var y = require('./routes/games/Y');
 
 // all environments
 // app.set('port', process.env.PORT || 3000);
@@ -43,39 +45,10 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
+app.get('/y', y.index);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var io = require('socket.io').listen(server);
-io.on('connection', function(socket) {
-	console.log("Connection made.");
 
-	socket.on('game', function(data) {
-		console.log(JSON.stringify(data, null, 2));
-		if (data.gameID) {
-			if (games[data.gameID] && games[data.gameID].playerSockets.length === 1) {
-				//Both players have connected.  Game on!
-				games[data.gameID].playerSockets.push(socket);
-				console.log("Game could start now.");
-				for (var s = 0; s < 2; s++) {
-					var thisSocket = games[data.gameID].playerSockets[s];
-					var otherSocket = games[data.gameID].playerSockets[(s+1)%2];
-					(function (thisSocket, otherSocket) {
-						thisSocket.on('move', function(data) {
-							otherSocket.emit('move', data);
-						});
-					})(thisSocket, otherSocket);
-
-					thisSocket.emit('gamestart', {start:true});
-				}
-			} else {
-				games[data.gameID] = {
-					playerSockets: [ socket ],
-					board: _.range(93).map(function(x) { return 0; })
-				};
-			}
-		}
-	});
-});

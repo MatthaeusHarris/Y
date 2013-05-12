@@ -45,7 +45,7 @@
 
 	function init() {
 
-		socket = io.connect();
+		socket = io.connect(document.location.protocol + "//" + document.location.host + "/y");
 		socket.on('connect', function() {
 			socket.emit('game',{gameID: getQueryVariable('game')});
 		});
